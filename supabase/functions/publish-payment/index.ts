@@ -14,6 +14,11 @@ const {data:m}=await db.from('organization_members').select('role').eq('organiza
 const {data:file,error:fe}=await db.storage.from('deposit-receipts').download(path);if(fe||!file||file.size>5242880)return reply(400,'Imagem indisponível');
 const ext=path.split('.').pop();const name='comprovante.'+ext;
 const hook=Deno.env.get('DISCORD_WEBHOOK_PAYMENTS');if(!hook)return reply(503,'Webhook não configurado');
+const digest=await crypto.subtle.digest('SHA-256',await file.arrayBuffer());
+const fingerprint=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('');
+const admin=createClient(Deno.env.get('SUPABASE_URL')!,Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
+const {error:claim}=await admin.from('receipt_fingerprints').insert({organization_id:d.organization_id,deposit_id:id,fingerprint,storage_path:path});
+if(claim){if(claim.code!=='23505')return reply(503,'Falha na verificação do comprovante');const {data:previous}=await admin.from('receipt_fingerprints').select('deposit_id,storage_path').eq('organization_id',d.organization_id).eq('fingerprint',fingerprint).maybeSingle();if(previous?.storage_path!==path)await admin.storage.from('deposit-receipts').remove([path]);return reply(409,previous?.deposit_id===id?'Comprovante já registrado neste depósito. Solicite conferência à administração.':'Comprovante duplicado: já utilizado em outro depósito.');}
 const identity=user.identities?.find(i=>i.provider==='discord');
 const employee=String(identity?.identity_data?.full_name||identity?.identity_data?.name||user.id).slice(0,200);
 const form=new FormData();form.append('files[0]',file,name);
