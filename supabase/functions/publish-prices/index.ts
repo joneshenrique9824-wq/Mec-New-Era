@@ -1,6 +1,8 @@
 import {createClient} from 'https://esm.sh/@supabase/supabase-js@2';
 Deno.serve(async req=>{
-const reply=(status:number,message:string)=>new Response(JSON.stringify({message}),{status,headers:{'Content-Type':'application/json'}});
+const cors={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type','Access-Control-Allow-Methods':'POST, OPTIONS'};
+if(req.method==='OPTIONS')return new Response(null,{headers:cors});
+const reply=(status:number,message:string)=>new Response(JSON.stringify({message}),{status,headers:{...cors,'Content-Type':'application/json'}});
 if(req.method!=='POST')return reply(405,'Método inválido');
 const token=req.headers.get('Authorization');if(!token)return reply(401,'Autenticação necessária');
 const db=createClient(Deno.env.get('SUPABASE_URL')!,Deno.env.get('SUPABASE_ANON_KEY')!,{global:{headers:{Authorization:token}}});
