@@ -12,6 +12,7 @@ if(!user)return reply({error:'Sessão inválida'},401);
 const {token}=await req.json();
 const identity=user.identities?.find(i=>i.provider==='discord');
 if(!identity||typeof token!=='string')return reply({error:'Entre novamente pelo Discord'},403);
+const allowedMembership=async()=>{const {data:org}=await db.from('organizations').select('id').eq('slug','new-era-city').single();if(!org)return false;const {data:m,error}=await db.from('organization_members').select('status,discord_verified_until,manual_block').eq('organization_id',org.id).eq('user_id',user.id).maybeSingle();return !error&&m?.status==='active'&&!m.manual_block&&Date.parse(m.discord_verified_until||'')>Date.now()};
 const headers={Authorization:'Bearer '+token};
 const me=await fetch('https://discord.com/api/v10/users/@me',{headers});
 if(!me.ok)return reply({error:'Autorização Discord expirada'},403);
@@ -20,7 +21,7 @@ if(account.id!==identity.identity_data?.sub && account.id!==identity.identity_da
 if(Deno.env.get('SUPABASE_URL')==='https://iafiorzdockmlgauwtjl.supabase.co' && account.id===Deno.env.get('DEV_ADMIN_DISCORD_ID') && account.id==='1174745079630549014'){
 const {error}=await db.rpc('sync_discord_membership',{p_user:user.id,p_discord:account.id,p_name:account.global_name||account.username,p_role:'proprietario'});
 if(error)return reply({error:'Falha ao sincronizar acesso DEV'},500);
-return reply({allowed:true,role:'proprietario',discord_id:account.id,name:account.global_name||account.username});
+return reply({allowed:await allowedMembership(),role:'proprietario',discord_id:account.id,name:account.global_name||account.username});
 }
 const member=await fetch('https://discord.com/api/v10/users/@me/guilds/1550614148822335578/member',{headers});
 if(!member.ok && member.status!==404)return reply({error:'Não foi possível verificar o Discord'},503);
@@ -28,6 +29,6 @@ const data=member.ok?await member.json():{roles:[]};
 const role=roles.find(([id])=>data.roles?.includes(id))?.[1];
 const {error}=await db.rpc('sync_discord_membership',{p_user:user.id,p_discord:account.id,p_name:account.global_name||account.username,p_role:role||null});
 if(error)return reply({error:'Falha ao sincronizar acesso'},500);
-return reply({allowed:!!role,role,discord_id:account.id,name:account.global_name||account.username});
+return reply({allowed:!!role&&await allowedMembership(),role,discord_id:account.id,name:account.global_name||account.username});
 }catch{return reply({error:'Falha na verificação'},500)}
 });
