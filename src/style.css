@@ -97,3 +97,10 @@ main.authenticated .dashboard-hero img{max-height:180px!important;mask-image:non
 .reference-layout .quote-deposit{padding:14px;margin-top:12px}
 }
 @media screen and (max-width:800px){main.authenticated{padding:10px}.reference-layout .workbench{grid-template-columns:1fr}.reference-layout .summary{position:static;max-height:none}.reference-layout .catalog{max-height:360px;grid-template-columns:repeat(auto-fill,minmax(105px,1fr))}.reference-layout>.primary-nav{position:static}}
+
+/* Large brand artwork with compact operational workspace */
+@media screen{
+main.authenticated .dashboard-hero{height:clamp(250px,34vw,440px);margin:0 auto 8px}
+main.authenticated .dashboard-hero img{max-height:440px!important;object-fit:contain!important}
+}
+@media screen and (max-width:600px){main.authenticated .dashboard-hero{height:200px}}
