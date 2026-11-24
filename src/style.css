@@ -29,3 +29,7 @@ main{max-width:1280px}.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}.t
 
 /* Larger official banner, preserving original proportions */
 .authenticated .brand-banner{height:clamp(175px,23vw,300px);object-fit:contain;object-position:center}
+
+/* Tall hero banner */
+main.authenticated img.brand-banner{width:100%;height:clamp(240px,36vw,480px)!important;max-height:none!important;object-fit:contain!important;object-position:center!important;background:#080d09}
+@media(max-width:600px){main.authenticated img.brand-banner{height: auto!important;min-height:150px;max-height:none!important}}
