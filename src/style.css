@@ -33,3 +33,5 @@ main{max-width:1280px}.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}.t
 /* Tall hero banner */
 main.authenticated img.brand-banner{width:100%;height:clamp(240px,36vw,480px)!important;max-height:none!important;object-fit:contain!important;object-position:center!important;background:#080d09}
 @media(max-width:600px){main.authenticated img.brand-banner{height: auto!important;min-height:150px;max-height:none!important}}
+
+.dashboard-hero{position:relative;width:100%;margin:0 auto 24px;background:radial-gradient(ellipse at center,#17351a 0%,#090d0b 75%);border:0;isolation:isolate}.dashboard-hero img{display:block;width:100%;height:auto;max-height:none;border:0;border-radius:0;object-fit:contain;mask-image:linear-gradient(to bottom,transparent 0%,#000 7%,#000 87%,transparent 100%);filter:drop-shadow(0 0 12px #5bff2922)}.dashboard-hero:after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,#090d0b,transparent 5%,transparent 95%,#090d0b)}@media print{.dashboard-hero{display:none}}
