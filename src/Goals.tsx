@@ -1,0 +1,10 @@
+import {useEffect,useState} from 'react';
+import type {SupabaseClient} from '@supabase/supabase-js';
+type Result={target:number|null;today:number;team_today:number;ranking:{name:string;total:number;sales:number}[]};
+const money=(n:number)=>Number(n).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+export default function Goals({db,org,role}:{db:SupabaseClient;org:string;role:string}){
+const [period,P]=useState('day'),[data,D]=useState<Result|null>(null),[target,T]=useState(''),[error,E]=useState(''),[busy,B]=useState(false);
+async function load(){const r=await db.rpc('goal_ranking',{p_org:org,p_period:period});D(r.error?null:r.data);E(r.error?.message||'')}
+useEffect(()=>{void load()},[org,period]);
+const pct=data?.target?Math.min(100,Number(data.today)/Number(data.target)*100):0;
+return <section><h2>Metas e Ranking</h2><p>Horário de Brasília • vendas registradas</p>{['proprietario','gerente'].includes(role)&&<form onSubmit={async e=>{e.preventDefault();B(true);try{const r=await db.rpc('set_daily_goal',{p_org:org,p_target:Number(target)});if(r.error)E(r.error.message);else await load()}finally{B(false)}}}><label>Meta diária por funcionário<input type="number" min="1" required value={target} onChange={e=>T(e.target.value)}/></label><button disabled={busy}>Salvar meta</button></form>}{error&&<p role="alert">{error}</p>}{data&&<><div className="stats"><article>Minha meta<h2>{data.target?money(data.target):'Não definida'}</h2></article><article>Minhas vendas hoje<h2>{money(data.today)}</h2></article><article>Total da equipe hoje<h2>{money(data.team_today)}</h2></article></div>{data.target&&<><progress max={100} value={pct}/><p>{pct.toFixed(1)}% da meta diária</p></>}<div className="tabs">{[['day','Hoje'],['week','Semana'],['month','Mês']].map(([v,l])=><button key={v} className={period===v?'active':''} onClick={()=>P(v)}>{l}</button>)}<button onClick={()=>void load()}>Atualizar</button></div>{data.ranking.length? <ol>{data.ranking.map((r,i)=><li key={i}>{r.name} — {money(r.total)} • {r.sales} vendas</li>)}</ol>:<p>Nenhuma venda neste período.</p>}</>}</section>}
