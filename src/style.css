@@ -104,3 +104,5 @@ main.authenticated .dashboard-hero{height:clamp(250px,34vw,440px);margin:0 auto 
 main.authenticated .dashboard-hero img{max-height:440px!important;object-fit:contain!important}
 }
 @media screen and (max-width:600px){main.authenticated .dashboard-hero{height:200px}}
+
+.history-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0}.history-filters input,.history-filters select{width:100%;min-width:0}.sales-history .staff-table{overflow-x:auto}.sales-history .stats{margin-top:14px}
