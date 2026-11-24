@@ -1,0 +1,5 @@
+begin;
+insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types) values('deposit-receipts','deposit-receipts',false,5242880,array['image/png','image/jpeg','image/webp']);
+create policy receipt_upload on storage.objects for insert to authenticated with check(bucket_id='deposit-receipts' and exists(select 1 from public.deposits d where d.id::text=(storage.foldername(name))[1] and d.employee_id=auth.uid() and d.status='pending' and exists(select 1 from public.organization_members m where m.organization_id=d.organization_id and m.user_id=auth.uid() and m.status='active')));
+create policy receipt_read on storage.objects for select to authenticated using(bucket_id='deposit-receipts' and exists(select 1 from public.deposits d where d.id::text=(storage.foldername(name))[1]));
+commit;
