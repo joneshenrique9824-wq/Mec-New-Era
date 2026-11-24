@@ -23,6 +23,9 @@ const identity=user.identities?.find(i=>i.provider==='discord');
 const employee=String(identity?.identity_data?.full_name||identity?.identity_data?.name||user.id).slice(0,200);
 const form=new FormData();form.append('files[0]',file,name);
 form.append('payload_json',JSON.stringify({username:'Underground Performance',allowed_mentions:{parse:[]},attachments:[{id:0,filename:name}],embeds:[{author:{name:'UNDERGROUND PERFORMANCE • NEW ERA CITY'},title:'💵 REGISTRO DE REPASSE',color:0xb5fa52,fields:[{name:'👤 Funcionário',value:employee},{name:'💰 Valor declarado',value:Number(d.amount).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})},{name:'📌 Situação',value:'Aguardando conferência manual'}],image:{url:'attachment://'+name},footer:{text:'Protocolo '+id},timestamp:d.created_at}]}));
-const res=await fetch(hook,{method:'POST',body:form});return reply(res.ok?200:502,res.ok?'Registro e comprovante publicados':'Discord recusou o envio');
+const endpoint=new URL(hook);endpoint.searchParams.set('wait','true');
+const res=await fetch(endpoint,{method:'POST',body:form});if(!res.ok)return reply(502,'Discord recusou o envio');
+const sent=await res.json();const saved=await admin.from('payment_messages').upsert({deposit_id:id,message_id:sent.id});if(saved.error)return reply(502,'Mensagem enviada, mas vínculo não salvo. Contate a administração.');
+return reply(200,'Registro e comprovante publicados');
 }catch{return reply(502,'Falha ao publicar comprovante')}
 });
