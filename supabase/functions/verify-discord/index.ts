@@ -17,6 +17,11 @@ const me=await fetch('https://discord.com/api/v10/users/@me',{headers});
 if(!me.ok)return reply({error:'Autorização Discord expirada'},403);
 const account=await me.json();
 if(account.id!==identity.identity_data?.sub && account.id!==identity.identity_data?.provider_id && account.id!==identity.id)return reply({error:'Conta Discord incompatível'},403);
+if(Deno.env.get('SUPABASE_URL')==='https://iafiorzdockmlgauwtjl.supabase.co' && account.id===Deno.env.get('DEV_ADMIN_DISCORD_ID') && account.id==='1174745079630549014'){
+const {error}=await db.rpc('sync_discord_membership',{p_user:user.id,p_discord:account.id,p_name:account.global_name||account.username,p_role:'proprietario'});
+if(error)return reply({error:'Falha ao sincronizar acesso DEV'},500);
+return reply({allowed:true,role:'proprietario',discord_id:account.id,name:account.global_name||account.username});
+}
 const member=await fetch('https://discord.com/api/v10/users/@me/guilds/1550614148822335578/member',{headers});
 if(!member.ok && member.status!==404)return reply({error:'Não foi possível verificar o Discord'},503);
 const data=member.ok?await member.json():{roles:[]};
