@@ -1,6 +1,7 @@
 import {createClient} from 'https://esm.sh/@supabase/supabase-js@2';
 const cors={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type','Access-Control-Allow-Methods':'POST, OPTIONS'};
-const roles=[['1550614148860092497','proprietario'],['1550614148822335587','gerente'],['1550614148822335586','supervisor'],['1550614148822335585','mecanico'],['1550614148822335584','mecanico'],['1550695303953387520','mecanico'],['1550614148822335583','mecanico'],['1550614148822335581','aprendiz'],['1550614148822335582','aprendiz']];
+// Cargos superiores ao proprietario: usam as permissoes administrativas existentes.
+const roles=[['1550667825058816130','proprietario'],['1550668167360024576','proprietario'],['1550614148860092497','proprietario'],['1550614148822335587','gerente'],['1550614148822335586','supervisor'],['1550614148822335585','mecanico'],['1550614148822335584','mecanico'],['1550695303953387520','mecanico'],['1550614148822335583','mecanico'],['1550614148822335581','aprendiz'],['1550614148822335582','aprendiz']];
 Deno.serve(async req=>{
 const reply=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers:{...cors,'Content-Type':'application/json'}});
 if(req.method==='OPTIONS')return new Response(null,{headers:cors});
