@@ -20,7 +20,7 @@ const message=await original.json();const embed=message.embeds?.[0];if(!embed||e
 const approved=d.status==='approved';const fields=(embed.fields||[]).filter((f:{name:string})=>!['📌 Situação','Motivo da rejeição'].includes(f.name));fields.push({name:'📌 Situação',value:approved?'✅ APROVADO':'❌ REJEITADO'});if(!approved&&d.reason)fields.push({name:'Motivo da rejeição',value:String(d.reason).slice(0,1024)});
 const attachments=(message.attachments||[]) as {id:string;filename:string;url:string}[];
 const receipt=attachments.find(x=>x.url.split('?')[0]===String(embed.image?.url||'').split('?')[0])||attachments.find(x=>/^comprovante\.(png|jpg|webp)$/i.test(x.filename));
-const result=await fetch(url,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({allowed_mentions:{parse:[]},embeds:[{author:embed.author,title:embed.title,color:approved?0x57f287:0xed4245,fields,image:receipt?{url:'attachment://'+receipt.filename}:embed.image?.url?{url:embed.image.url}:undefined,footer:embed.footer,timestamp:embed.timestamp}]})});
+const result=await fetch(url,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({allowed_mentions:{parse:[]},attachments:attachments.map(x=>({id:x.id,filename:x.filename})),embeds:[{author:embed.author,title:embed.title,color:approved?0x57f287:0xed4245,fields,image:receipt?{url:'attachment://'+receipt.filename}:embed.image?.url?{url:embed.image.url}:undefined,footer:embed.footer,timestamp:embed.timestamp}]})});
 return reply(result.ok?200:502,result.ok?'Status atualizado no Discord':'Falha ao editar mensagem');
 }catch{return reply(502,'Falha de sincronização')}
 });
